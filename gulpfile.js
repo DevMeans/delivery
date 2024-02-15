@@ -18,7 +18,7 @@ function css( done ) {
         .pipe( sass() )
         .pipe( postcss([ autoprefixer(), /*cssnano() */]) )
         .pipe( sourcemaps.write('.'))
-        .pipe( dest('build/css') )
+        .pipe( dest('dist/css') )
 
     done();
 }
@@ -26,7 +26,7 @@ function css( done ) {
 function imagenes() {
     return src('src/img/**/*')
         .pipe( imagemin({ optimizationLevel: 3 }) )
-        .pipe( dest('build/img') )
+        .pipe( dest('dist/img') )
 }
 
 function versionWebp() {
@@ -35,7 +35,7 @@ function versionWebp() {
     }
     return src('src/img/**/*.{png,jpg}')
         .pipe( webp( opciones ) )
-        .pipe( dest('build/img') )
+        .pipe( dest('dist/img') )
 }
 function versionAvif() {
     const opciones = {
@@ -43,18 +43,24 @@ function versionAvif() {
     }
     return src('src/img/**/*.{png,jpg}')
         .pipe( avif( opciones ) )
-        .pipe( dest('build/img'))
+        .pipe( dest('dist/img'))
 }
 
 function dev() {
     watch( 'src/scss/**/*.scss', css );
     watch( 'src/img/**/*', imagenes );
 }
+function html() {
+    return src("*.html")
+      .pipe(dest("dist"));
+  }
+  
 
-
+exports.html=html
 exports.css = css;
 exports.dev = dev;
 exports.imagenes = imagenes;
 exports.versionWebp = versionWebp;
 exports.versionAvif = versionAvif;
 exports.default = series( css, dev  );
+exports.build= series(css,html,imagenes,versionAvif,versionWebp);
